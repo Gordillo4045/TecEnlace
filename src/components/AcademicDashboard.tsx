@@ -8,13 +8,12 @@ import {
 } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
-import { CalendarIcon, Users, BookOpen } from 'lucide-react'
+import { CalendarIcon, Users, BookOpen, LogOut } from 'lucide-react'
 import { StudentList } from "./StudentList"
 import { TutorList } from "./TutorList"
 import { StatisticsView } from "./StatisticsView"
 
-
-export default function AcademicDashboard() {
+export default function AcademicDashboard({ handleDisconnect }: { handleDisconnect: () => void }) {
   const [selectedPeriod, setSelectedPeriod] = React.useState("2141")
   const [searchQuery, setSearchQuery] = React.useState("")
 
@@ -39,13 +38,17 @@ export default function AcademicDashboard() {
                 <SelectValue placeholder="Seleccionar período" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="2141">ENEJUN2014</SelectItem>
-                <SelectItem value="2142">JULDIC2014</SelectItem>
+                <SelectItem value="2141">Ago-Dic 2024</SelectItem>
+                <SelectItem value="2142">Ene-Jun 2025</SelectItem>
               </SelectContent>
             </Select>
             <Button className="tecnm-button">
               <CalendarIcon className="mr-2 h-4 w-4" />
               Cambiar Período
+            </Button>
+            <Button onClick={handleDisconnect} variant="destructive">
+              <LogOut className="mr-2 h-4 w-4" />
+              Desconectar
             </Button>
           </div>
         </div>
