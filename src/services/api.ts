@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { API_URL } from '@/config';
-import { Student, Tutor, Statistics, Career } from '@/types';
+import { Student, Tutor, Statistics, Career, PeriodStatistics } from '@/types';
 
 // Configuración base de axios
 const api = axios.create({
@@ -78,6 +78,26 @@ export const apiService = {
 
             const response = await api.get('/api/statistics');
             CacheManager.set('statistics', response.data);
+            return response.data;
+        },
+    },
+
+    //periods-statistics
+    periodsStatistics: {
+        getAll: async (): Promise<PeriodStatistics[]> => {
+            const cached = CacheManager.get('periods-statistics');
+            if (cached) return cached;
+
+            const response = await api.get('/api/periods-statistics');
+            CacheManager.set('periods-statistics', response.data);
+            return response.data;
+        },
+    },
+
+    //tutor-students
+    tutorStudents: {
+        getAll: async (tutorId: number): Promise<Student[]> => {
+            const response = await api.get(`/api/tutor/${tutorId}/students`);
             return response.data;
         },
     },

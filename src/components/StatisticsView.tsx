@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Statistics } from '@/types';
-import { API_URL } from '@/config';
+import { PeriodStatistics, Statistics } from '@/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Loader2 } from "lucide-react"
+import { apiService } from '@/services/api';
 
 export const StatisticsView: React.FC = () => {
     const [statistics, setStatistics] = useState<Statistics[]>([]);
+    const [periodSummary, setPeriodSummary] = useState<PeriodStatistics[]>([]);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -16,15 +16,17 @@ export const StatisticsView: React.FC = () => {
     const fetchStatistics = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${API_URL}/api/statistics`);
-            setStatistics(response.data);
+            const data = await apiService.statistics.getAll()
+            const periodSummary = await apiService.periodsStatistics.getAll()
+            setStatistics(data);
+            setPeriodSummary(periodSummary);
         } catch (error) {
             console.error('Error al obtener estadísticas:', error);
         } finally {
             setLoading(false);
         }
     };
-
+    console.log(periodSummary)
     return (
         <div className="space-y-6">
             <Card>
@@ -55,6 +57,33 @@ export const StatisticsView: React.FC = () => {
                     )}
                 </CardContent>
             </Card>
+
+            {/* <Card>
+                <CardHeader>
+                    <CardTitle>Resumen del Período Actual</CardTitle>
+                    <CardDescription>Estadísticas generales de tutorías</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div>
+                            <h3 className="font-semibold">Total Alumnos</h3>
+                            <p className="text-2xl">{periodSummary[0].total_alumnos}</p>
+                        </div>
+                        <div>
+                            <h3 className="font-semibold">Total Tutores</h3>
+                            <p className="text-2xl">{periodSummary[0].total_tutores}</p>
+                        </div>
+                        <div>
+                            <h3 className="font-semibold">Total Entrevistas</h3>
+                            <p className="text-2xl">{periodSummary[0].total_entrevistas}</p>
+                        </div>
+                        <div>
+                            <h3 className="font-semibold">Total Canalizaciones</h3>
+                            <p className="text-2xl">{periodSummary[0].total_canalizaciones}</p>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card> */}
         </div>
     );
 };

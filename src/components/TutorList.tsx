@@ -12,9 +12,8 @@ import { Button } from "@/components/ui/button"
 import { Loader2, Search } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Tutor } from '@/types';
-import { API_URL } from '@/config';
+import { apiService } from '@/services/api';
 
 interface TutorListProps {
     searchQuery: string
@@ -32,14 +31,19 @@ export const TutorList: React.FC<TutorListProps> = ({ searchQuery, setSearchQuer
     const fetchTutors = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${API_URL}/api/tutors`);
-            setTutors(response.data);
+            const data = await apiService.tutors.getAll()
+            setTutors(data);
         } catch (error) {
             console.error('Error al obtener tutores:', error);
         } finally {
             setLoading(false);
         }
     };
+
+    const handleExportStudents = async (tutorId: number) => {
+        const data = await apiService.tutorStudents.getAll(tutorId)
+        console.log(data)
+    }
 
     return (
         loading ? (
@@ -84,7 +88,7 @@ export const TutorList: React.FC<TutorListProps> = ({ searchQuery, setSearchQuer
                                     <TableCell>{tutor.estatus}</TableCell>
                                     <TableCell>{tutor.num_estudiantes}</TableCell>
                                     <TableCell>
-                                        <Button variant="outline" size="sm">Ver Detalles</Button>
+                                        <Button variant="outline" size="sm" onClick={() => handleExportStudents(tutor.id_tutor)}>Exportar Estudiantes</Button>
                                     </TableCell>
                                 </TableRow>
                             ))}

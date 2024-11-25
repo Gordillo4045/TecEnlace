@@ -28,6 +28,17 @@ export interface Statistics {
     total_tutores: number;
 }
 
+export interface PeriodStatistics {
+    total_alumnos: number;
+    total_tutores: number;
+    total_entrevistas: number;
+    total_canalizaciones: number;
+    promedio_calificaciones: number;
+    alumnos_con_tutor: number;
+    alumnos_sin_tutor: number;
+    canalizaciones_pendientes: number;
+}
+
 export interface Period {
     id_periodo: number;
     nombre_periodo: string;
