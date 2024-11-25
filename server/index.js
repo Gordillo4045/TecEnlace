@@ -135,7 +135,6 @@ app.post('/api/assign-tutor', checkConnection, async (req, res) => {
 
         try {
             for (const studentId of studentIds) {
-                // Desactivar asignaciones anteriores
                 await transaction.request()
                     .input('studentId', sql.Int, studentId)
                     .query(`
@@ -145,7 +144,6 @@ app.post('/api/assign-tutor', checkConnection, async (req, res) => {
                         WHERE id_alumno = @studentId AND estado = 'Activo'
                     `);
 
-                // Crear nueva asignación con motivo
                 await transaction.request()
                     .input('studentId', sql.Int, studentId)
                     .input('tutorId', sql.Int, tutorId)
@@ -182,7 +180,89 @@ app.get('/api/careers', checkConnection, async (req, res) => {
     }
 });
 
+// Obtener alumnos asignados a un tutor
+app.get('/api/tutor/:tutorId/students', checkConnection, async (req, res) => {
+    try {
+        const result = await pool.request()
+            .input('tutorId', sql.Int, req.params.tutorId)
+            .query(`
+                SELECT 
+                    a.id_alumno,
+                    a.no_control,
+                    a.nombre + ' ' + a.apellidos COLLATE Modern_Spanish_CI_AI as nombre_completo,
+                    c.nombre_carrera COLLATE Modern_Spanish_CI_AI as nombre_carrera,
+                    a.estatus,
+                    a.calificacion_tutorias,
+                    nt.nivel COLLATE Modern_Spanish_CI_AI as nivel_tutoria,
+                    pi.semestre_actual,
+                    ata.fecha_asignacion,
+                    ata.motivo_cambio COLLATE Modern_Spanish_CI_AI as motivo_asignacion
+                FROM Alumnos a
+                INNER JOIN Asignaciones_Tutores_Alumnos ata ON a.id_alumno = ata.id_alumno
+                LEFT JOIN Carreras c ON a.id_carrera = c.id_carrera
+                LEFT JOIN Niveles_Tutorias nt ON a.id_nivel = nt.id_nivel
+                LEFT JOIN Periodo_Ingreso pi ON a.id_ingreso = pi.id_ingreso
+                WHERE ata.id_tutor = @tutorId 
+                AND ata.estado = 'Activo'
+            `);
+        res.json(result.recordset);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
+// Obtener estadísticas del período actual
+app.get('/api/period-statistics', checkConnection, async (req, res) => {
+    try {
+        const result = await pool.request().query(`
+            WITH PeriodoActual AS (
+                SELECT TOP 1 id_periodo, fecha_inicio, fecha_fin
+                FROM Tutorias_Periodo
+                WHERE fecha_fin >= GETDATE()
+                ORDER BY fecha_inicio DESC
+            )
+            SELECT 
+                (SELECT COUNT(DISTINCT a.id_alumno) 
+                 FROM Alumnos a 
+                 WHERE a.estatus = 'Activo') as total_alumnos,
+                
+                (SELECT COUNT(DISTINCT id_tutor) 
+                 FROM Tutores 
+                 WHERE estatus = 'Activo') as total_tutores,
+                
+                (SELECT COUNT(id_entrevista) 
+                 FROM Entrevistas e 
+                 JOIN PeriodoActual p ON e.fecha_entrevista BETWEEN p.fecha_inicio AND p.fecha_fin) as total_entrevistas,
+                
+                (SELECT COUNT(id_canalizacion) 
+                 FROM Canalizaciones c 
+                 JOIN PeriodoActual p ON c.fecha_canalizacion BETWEEN p.fecha_inicio AND p.fecha_fin) as total_canalizaciones,
+                
+                (SELECT AVG(calificacion_tutorias) 
+                 FROM Alumnos 
+                 WHERE estatus = 'Activo') as promedio_calificaciones,
+                
+                (SELECT COUNT(DISTINCT id_alumno) 
+                 FROM Asignaciones_Tutores_Alumnos 
+                 WHERE estado = 'Activo') as alumnos_con_tutor,
+                
+                (SELECT COUNT(DISTINCT id_alumno) 
+                 FROM Alumnos a 
+                 WHERE NOT EXISTS (
+                     SELECT 1 FROM Asignaciones_Tutores_Alumnos ata 
+                     WHERE ata.id_alumno = a.id_alumno AND ata.estado = 'Activo'
+                 ) AND a.estatus = 'Activo') as alumnos_sin_tutor,
+
+                (SELECT COUNT(id_canalizacion) 
+                 FROM Canalizaciones 
+                 WHERE estatus = 'Pendiente') as canalizaciones_pendientes
+        `);
+
+        res.json(result.recordset[0]);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
 const PORT = process.env.PORT || 4321;
 app.listen(PORT, () => {
