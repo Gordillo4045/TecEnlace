@@ -48,10 +48,34 @@ app.post('/api/configure', async (req, res) => {
             await pool.close();
         }
         pool = await new sql.ConnectionPool(dbConfig).connect();
+
+        // Configurar reconexión automática
+        pool.on('error', async (err) => {
+            console.error('Error en la conexión:', err);
+            try {
+                if (pool) {
+                    await pool.close();
+                }
+                pool = await new sql.ConnectionPool(dbConfig).connect();
+                console.log('Reconexión exitosa');
+            } catch (reconnectErr) {
+                console.error('Error en la reconexión:', reconnectErr);
+            }
+        });
+
         res.json({ message: 'Conexión establecida exitosamente' });
     } catch (err) {
         res.status(500).json({ error: `Error al conectar: ${err.message}` });
     }
+});
+
+// Agregar endpoint para verificar conexión
+app.get('/api/check-connection', async (req, res) => {
+    if (!pool || !pool.connected) {
+        res.status(400).json({ connected: false });
+        return;
+    }
+    res.json({ connected: true });
 });
 
 // Obtener estudiantes con información detallada
@@ -94,10 +118,11 @@ app.get('/api/tutors', checkConnection, async (req, res) => {
                 t.id_tutor,
                 t.nombre_completo,
                 t.estatus,
+                t.motivo,
                 COUNT(DISTINCT ata.id_alumno) as num_estudiantes
             FROM Tutores t
             LEFT JOIN Asignaciones_Tutores_Alumnos ata ON t.id_tutor = ata.id_tutor AND ata.estado = 'Activo'
-            GROUP BY t.id_tutor, t.nombre_completo, t.estatus
+            GROUP BY t.id_tutor, t.nombre_completo, t.estatus, t.motivo
         `);
         res.json(result.recordset);
     } catch (err) {
@@ -264,7 +289,7 @@ app.get('/api/period-statistics', checkConnection, async (req, res) => {
     }
 });
 
-const PORT = process.env.PORT || 4321;
+const PORT = 4321;
 app.listen(PORT, () => {
     console.log(`Servidor ejecutándose en http://localhost:${PORT}`);
 });
