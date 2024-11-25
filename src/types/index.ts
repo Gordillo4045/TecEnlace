@@ -19,6 +19,7 @@ export interface Tutor {
     nombre_completo: string;
     estatus: string;
     num_estudiantes: number;
+    motivo: string;
 }
 
 export interface Statistics {
@@ -32,11 +33,11 @@ export interface PeriodStatistics {
     total_alumnos: number;
     total_tutores: number;
     total_entrevistas: number;
-    total_canalizaciones: number;
-    promedio_calificaciones: number;
-    alumnos_con_tutor: number;
-    alumnos_sin_tutor: number;
-    canalizaciones_pendientes: number;
+    total_canalizaciones?: number;
+    promedio_calificaciones?: number;
+    alumnos_con_tutor?: number;
+    alumnos_sin_tutor?: number;
+    canalizaciones_pendientes?: number;
 }
 
 export interface Period {

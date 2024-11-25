@@ -77,6 +77,7 @@ export const TutorList: React.FC<TutorListProps> = ({ searchQuery, setSearchQuer
                             <TableRow>
                                 <TableHead>Nombre Completo</TableHead>
                                 <TableHead>Estatus</TableHead>
+                                <TableHead>Motivo</TableHead>
                                 <TableHead>Estudiantes Asignados</TableHead>
                                 <TableHead>Acciones</TableHead>
                             </TableRow>
@@ -86,6 +87,7 @@ export const TutorList: React.FC<TutorListProps> = ({ searchQuery, setSearchQuer
                                 <TableRow key={tutor.id_tutor}>
                                     <TableCell>{tutor.nombre_completo}</TableCell>
                                     <TableCell>{tutor.estatus}</TableCell>
+                                    <TableCell>{tutor.motivo}</TableCell>
                                     <TableCell>{tutor.num_estudiantes}</TableCell>
                                     <TableCell>
                                         <Button variant="outline" size="sm" onClick={() => handleExportStudents(tutor.id_tutor)}>Exportar Estudiantes</Button>

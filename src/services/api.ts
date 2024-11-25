@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { API_URL } from '@/config';
+import { API_URL, DB_CONFIG_KEY } from '@/config';
 import { Student, Tutor, Statistics, Career, PeriodStatistics } from '@/types';
 
 // Configuración base de axios
@@ -7,7 +7,8 @@ const api = axios.create({
     baseURL: API_URL,
     headers: {
         'Content-Type': 'application/json',
-    },
+        'Accept': 'application/json'
+    }
 });
 
 // Clase para manejar el estado de la caché
@@ -84,14 +85,19 @@ export const apiService = {
 
     //periods-statistics
     periodsStatistics: {
-        getAll: async (): Promise<PeriodStatistics[]> => {
-            const cached = CacheManager.get('periods-statistics');
-            if (cached) return cached;
-
-            const response = await api.get('/api/periods-statistics');
-            CacheManager.set('periods-statistics', response.data);
-            return response.data;
-        },
+        getAll: async (): Promise<PeriodStatistics> => {
+            try {
+                const response = await api.get('/api/period-statistics');
+                if (typeof response.data === 'string') {
+                    console.error('Respuesta inesperada (HTML):', response.data);
+                    throw new Error('Respuesta inesperada del servidor');
+                }
+                return response.data;
+            } catch (error) {
+                console.error('Error en periodsStatistics.getAll:', error);
+                throw error;
+            }
+        }
     },
 
     //tutor-students
@@ -118,7 +124,33 @@ export const apiService = {
     database: {
         configure: async (config: any) => {
             const response = await api.post('/api/configure', config);
+            if (response.data.message === 'Conexión establecida exitosamente') {
+                localStorage.setItem(DB_CONFIG_KEY, JSON.stringify(config));
+            }
             return response.data;
+        },
+
+        checkConnection: async () => {
+            try {
+                const response = await api.get('/api/check-connection');
+                return response.data.connected;
+            } catch (error) {
+                return false;
+            }
+        },
+
+        reconnect: async () => {
+            const savedConfig = localStorage.getItem(DB_CONFIG_KEY);
+            if (savedConfig) {
+                try {
+                    await apiService.database.configure(JSON.parse(savedConfig));
+                    return true;
+                } catch (error) {
+                    console.error('Error en la reconexión:', error);
+                    return false;
+                }
+            }
+            return false;
         },
     },
 
@@ -126,4 +158,19 @@ export const apiService = {
     refreshData: () => {
         CacheManager.clear();
     },
-}; 
+};
+
+// Interceptor para manejar errores de conexión
+api.interceptors.response.use(
+    response => response,
+    async error => {
+        if (error.response?.status === 400 && error.response?.data?.error === 'Base de datos no configurada') {
+            const reconnected = await apiService.database.reconnect();
+            if (reconnected) {
+                // Reintentar la petición original
+                return api(error.config);
+            }
+        }
+        return Promise.reject(error);
+    }
+); 

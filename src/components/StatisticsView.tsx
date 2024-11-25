@@ -6,7 +6,7 @@ import { apiService } from '@/services/api';
 
 export const StatisticsView: React.FC = () => {
     const [statistics, setStatistics] = useState<Statistics[]>([]);
-    const [periodSummary, setPeriodSummary] = useState<PeriodStatistics[]>([]);
+    const [periodStatistics, setPeriodStatistics] = useState<PeriodStatistics | null>(null);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -16,19 +16,60 @@ export const StatisticsView: React.FC = () => {
     const fetchStatistics = async () => {
         setLoading(true);
         try {
-            const data = await apiService.statistics.getAll()
-            const periodSummary = await apiService.periodsStatistics.getAll()
+            const data = await apiService.statistics.getAll();
             setStatistics(data);
-            setPeriodSummary(periodSummary);
+
+            const periodSummary = await apiService.periodsStatistics.getAll();
+            setPeriodStatistics(periodSummary);
+
         } catch (error) {
-            console.error('Error al obtener estadísticas:', error);
+            console.error('Error detallado:', error);
+            setStatistics([]);
+            setPeriodStatistics(null);
         } finally {
             setLoading(false);
         }
     };
-    console.log(periodSummary)
+
     return (
         <div className="space-y-6">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Resumen del Período Actual</CardTitle>
+                    <CardDescription>Estadísticas generales de tutorías</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    {loading ? (
+                        <div className="flex justify-center">
+                            <Loader2 className="h-6 w-6 animate-spin" />
+                        </div>
+                    ) : periodStatistics ? (
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div>
+                                <h3 className="font-semibold">Total Alumnos</h3>
+                                <p className="text-2xl">{periodStatistics.total_alumnos}</p>
+                            </div>
+                            <div>
+                                <h3 className="font-semibold">Total Tutores</h3>
+                                <p className="text-2xl">{periodStatistics.total_tutores}</p>
+                            </div>
+                            <div>
+                                <h3 className="font-semibold">Total Entrevistas</h3>
+                                <p className="text-2xl">{periodStatistics.total_entrevistas}</p>
+                            </div>
+                            <div>
+                                <h3 className="font-semibold">Total Canalizaciones</h3>
+                                <p className="text-2xl">{periodStatistics.total_canalizaciones}</p>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="text-center text-gray-500">
+                            No hay estadísticas disponibles para el período actual
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+
             <Card>
                 <CardHeader>
                     <CardTitle>Estadísticas por Carrera</CardTitle>
@@ -57,33 +98,6 @@ export const StatisticsView: React.FC = () => {
                     )}
                 </CardContent>
             </Card>
-
-            {/* <Card>
-                <CardHeader>
-                    <CardTitle>Resumen del Período Actual</CardTitle>
-                    <CardDescription>Estadísticas generales de tutorías</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div>
-                            <h3 className="font-semibold">Total Alumnos</h3>
-                            <p className="text-2xl">{periodSummary[0].total_alumnos}</p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold">Total Tutores</h3>
-                            <p className="text-2xl">{periodSummary[0].total_tutores}</p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold">Total Entrevistas</h3>
-                            <p className="text-2xl">{periodSummary[0].total_entrevistas}</p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold">Total Canalizaciones</h3>
-                            <p className="text-2xl">{periodSummary[0].total_canalizaciones}</p>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card> */}
         </div>
     );
 };
