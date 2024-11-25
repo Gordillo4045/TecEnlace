@@ -1,19 +1,29 @@
-import React from 'react'
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Statistics } from '@/types';
+import { API_URL } from '@/config';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Loader2 } from "lucide-react"
 
 export const StatisticsView: React.FC = () => {
-    // Aquí normalmente harías llamadas a la API para obtener los datos de las vistas estadísticas
-    const careerStats = [
-        { id: 1, nombre_carrera: 'Ingeniería en Sistemas Computacionales', total_alumnos: 150, promedio_calificacion_tutorias: 85.5, total_tutores: 10 },
-        // Más estadísticas por carrera...
-    ]
+    const [statistics, setStatistics] = useState<Statistics[]>([]);
+    const [loading, setLoading] = useState(false);
 
-    const periodSummary = {
-        total_alumnos: 500,
-        total_tutores: 30,
-        total_entrevistas: 1000,
-        total_canalizaciones: 50
-    }
+    useEffect(() => {
+        fetchStatistics();
+    }, []);
+
+    const fetchStatistics = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.get(`${API_URL}/api/statistics`);
+            setStatistics(response.data);
+        } catch (error) {
+            console.error('Error al obtener estadísticas:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div className="space-y-6">
@@ -23,51 +33,29 @@ export const StatisticsView: React.FC = () => {
                     <CardDescription>Resumen de tutorías por carrera</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {careerStats.map((stat) => (
-                            <Card key={stat.id}>
-                                <CardHeader>
-                                    <CardTitle className="text-lg">{stat.nombre_carrera}</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <p>Total Alumnos: {stat.total_alumnos}</p>
-                                    <p>Promedio Calificación: {stat.promedio_calificacion_tutorias.toFixed(2)}</p>
-                                    <p>Total Tutores: {stat.total_tutores}</p>
-                                </CardContent>
-                            </Card>
-                        ))}
-                    </div>
-                </CardContent>
-            </Card>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle>Resumen del Período Actual</CardTitle>
-                    <CardDescription>Estadísticas generales de tutorías</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap
--4">
-                        <div>
-                            <h3 className="font-semibold">Total Alumnos</h3>
-                            <p className="text-2xl">{periodSummary.total_alumnos}</p>
+                    {loading ? (
+                        <div className="flex justify-center">
+                            <Loader2 className="h-6 w-6 animate-spin" />
                         </div>
-                        <div>
-                            <h3 className="font-semibold">Total Tutores</h3>
-                            <p className="text-2xl">{periodSummary.total_tutores}</p>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {statistics.map((stat, index) => (
+                                <Card key={index}>
+                                    <CardHeader>
+                                        <CardTitle className="text-lg">{stat.nombre_carrera}</CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <p>Total Alumnos: {stat.total_alumnos}</p>
+                                        <p>Promedio Calificación: {stat.promedio_calificacion_tutorias.toFixed(2)}</p>
+                                        <p>Total Tutores: {stat.total_tutores}</p>
+                                    </CardContent>
+                                </Card>
+                            ))}
                         </div>
-                        <div>
-                            <h3 className="font-semibold">Total Entrevistas</h3>
-                            <p className="text-2xl">{periodSummary.total_entrevistas}</p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold">Total Canalizaciones</h3>
-                            <p className="text-2xl">{periodSummary.total_canalizaciones}</p>
-                        </div>
-                    </div>
+                    )}
                 </CardContent>
             </Card>
         </div>
-    )
-}
+    );
+};
 
