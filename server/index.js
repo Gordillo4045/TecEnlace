@@ -3,20 +3,26 @@ const sql = require('mssql');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
-require('dotenv').config({
-    path: process.env.NODE_ENV === 'production'
-        ? '.env.production'
-        : '.env'
-});
+require('dotenv').config();
 const rateLimit = require('express-rate-limit');
 
 const app = express();
 
 // Configuración de CORS
+const allowedOrigins = [
+    'https://amazing-scone-68c5ca.netlify.app', // Tu dominio de Netlify
+    'http://localhost:5173',
+    'http://127.0.0.1:5173'
+];
+
 const corsOptions = {
-    origin: process.env.NODE_ENV === 'production'
-        ? process.env.CORS_ORIGIN
-        : ['http://localhost:5173', 'http://127.0.0.1:5173'],
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('No permitido por CORS'));
+        }
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
     credentials: true,
@@ -28,6 +34,13 @@ app.use(cors(corsOptions));
 
 // Middleware para preflight requests
 app.options('*', cors(corsOptions));
+
+// Middleware para debugging (temporal)
+app.use((req, res, next) => {
+    console.log('Request from:', req.headers.origin);
+    console.log('Request method:', req.method);
+    next();
+});
 
 app.use(express.json({ charset: 'utf-8' }));
 app.use(bodyParser.json());
@@ -328,6 +341,6 @@ const limiter = rateLimit({
 app.use(limiter);
 
 const PORT = process.env.PORT || 4321;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`Servidor ejecutándose en puerto ${PORT} en modo ${process.env.NODE_ENV}`);
 });
