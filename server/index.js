@@ -2,11 +2,30 @@ const express = require('express');
 const sql = require('mssql');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const path = require('path');
+require('dotenv').config({
+    path: process.env.NODE_ENV === 'production'
+        ? '.env.production'
+        : '.env'
+});
+const rateLimit = require('express-rate-limit');
 
 const app = express();
+
+// Configuración de CORS según el entorno
+const corsOptions = {
+    origin: process.env.CORS_ORIGIN,
+    credentials: true
+};
+
+app.use(cors(corsOptions));
 app.use(express.json({ charset: 'utf-8' }));
-app.use(cors());
 app.use(bodyParser.json());
+
+// Servir archivos estáticos en producción
+if (process.env.NODE_ENV === 'production') {
+    app.use(express.static(path.join(__dirname, '../dist')));
+}
 
 let pool = null;
 
@@ -289,7 +308,16 @@ app.get('/api/period-statistics', checkConnection, async (req, res) => {
     }
 });
 
-const PORT = 4321;
+// Configuración del rate limiter
+const limiter = rateLimit({
+    windowMs: parseInt(process.env.RATE_LIMIT_WINDOW), // 15 minutos por defecto
+    max: parseInt(process.env.RATE_LIMIT_MAX) // límite de peticiones por ventana
+});
+
+// Usar el rate limiter
+app.use(limiter);
+
+const PORT = process.env.PORT || 4321;
 app.listen(PORT, () => {
-    console.log(`Servidor ejecutándose en http://localhost:${PORT}`);
+    console.log(`Servidor ejecutándose en puerto ${PORT} en modo ${process.env.NODE_ENV}`);
 });
