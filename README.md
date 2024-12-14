@@ -16,7 +16,7 @@ cd /TecEnlace
 npm install
 npm run dev
 ```
-`Step 4`: In another terminal
+`Step 5`: In another terminal
 ```
 cd /TecEnlace/server
 npm run serve
