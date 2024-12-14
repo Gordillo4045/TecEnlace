@@ -12,13 +12,23 @@ const rateLimit = require('express-rate-limit');
 
 const app = express();
 
-// Configuración de CORS según el entorno
+// Configuración de CORS
 const corsOptions = {
-    origin: process.env.CORS_ORIGIN,
-    credentials: true
+    origin: process.env.NODE_ENV === 'production'
+        ? process.env.CORS_ORIGIN
+        : ['http://localhost:5173', 'http://127.0.0.1:5173'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    credentials: true,
+    optionsSuccessStatus: 200
 };
 
+// Aplicar CORS antes de cualquier ruta
 app.use(cors(corsOptions));
+
+// Middleware para preflight requests
+app.options('*', cors(corsOptions));
+
 app.use(express.json({ charset: 'utf-8' }));
 app.use(bodyParser.json());
 
