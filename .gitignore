@@ -22,3 +22,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Variables de entorno
+.env
+.env.production
+.env.local
+.env.*.local
+
+# Mantener el ejemplo
+!.env.example
