@@ -1,20 +1,25 @@
-#TecEnlace 👽
+# TecEnlace 👽
 
 ## Initialization 🔨
 `Step 1`: Download node.js https://nodejs.org/en and git https://git-scm.com/downloads
 
 `Step 2`: Clone repository in **visual code**.
 ```
-Git clone https://github.com/Gordillo4045/EvalSphere
+Git clone https://github.com/Gordillo4045/TecEnlace
 ```
 `Step 3`: Open terminal and go to the folder 
 ```
-cd /Folder_name
+cd /TecEnlace
 ```
 `Step 4`: In the terminal 
 ```
 npm install
 npm run dev
+```
+`Step 4`: In another terminal
+```
+cd /TecEnlace/server
+npm run serve
 ```
 
 ## Interface 📷
