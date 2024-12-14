@@ -1,50 +1,23 @@
-# React + TypeScript + Vite
+#TecEnlace 👽
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Initialization 🔨
+`Step 1`: Download node.js https://nodejs.org/en and git https://git-scm.com/downloads
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+`Step 2`: Clone repository in **visual code**.
+```
+Git clone https://github.com/Gordillo4045/EvalSphere
+```
+`Step 3`: Open terminal and go to the folder 
+```
+cd /Folder_name
+```
+`Step 4`: In the terminal 
+```
+npm install
+npm run dev
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+## Interface 📷
+<img width="1822" alt="Screenshot 2024-12-13 at 9 51 16 PM" src="https://github.com/user-attachments/assets/047810e0-866e-47d3-b275-b33ca2bcd3af" />
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+<img width="1822" alt="Screenshot 2024-12-13 at 9 55 57 PM" src="https://github.com/user-attachments/assets/92b37466-9f34-4200-8881-de31e2a05bab" />
