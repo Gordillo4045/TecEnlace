@@ -3,7 +3,7 @@ const VITE_API_URL = import.meta.env.VITE_API_URL;
 
 export const API_URL = isDevelopment
     ? 'http://localhost:4321'
-    : VITE_API_URL || 'https://tu-backend-url.com';
+    : VITE_API_URL || 'https://tenenlace-server.up.railway.app/';
 
 export const DB_CONFIG_KEY = 'db_config';
 
