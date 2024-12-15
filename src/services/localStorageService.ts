@@ -43,6 +43,48 @@ const initialStudents: Student[] = [
         status_asignacion: "Sin asignar",
         motivo: null,
         id_carrera: 1
+    },
+    {
+        id_alumno: 4,
+        no_control: "19211237",
+        nombre_completo: "Daniel Gonzalez",
+        nombre_carrera: "Ingeniería en Sistemas Computacionales",
+        estatus: "Activo",
+        calificacion_tutorias: 100,
+        nivel_tutoria: "Básico",
+        semestre_actual: 2,
+        tutor_asignado: "Sin asignar",
+        status_asignacion: "Sin asignar",
+        motivo: null,
+        id_carrera: 1
+    },
+    {
+        id_alumno: 5,
+        no_control: "19211238",
+        nombre_completo: "Andre Vizuet Acosta",
+        nombre_carrera: "Ingeniería en Sistemas Computacionales",
+        estatus: "Activo",
+        calificacion_tutorias: 100,
+        nivel_tutoria: "Básico",
+        semestre_actual: 7,
+        tutor_asignado: "Sin asignar",
+        status_asignacion: "Sin asignar",
+        motivo: null,
+        id_carrera: 1
+    },
+    {
+        id_alumno: 6,
+        no_control: "19211239",
+        nombre_completo: "Edgar Cabrera Soriano",
+        nombre_carrera: "Ingeniería Industrial",
+        estatus: "Activo",
+        calificacion_tutorias: 70,
+        nivel_tutoria: "Básico",
+        semestre_actual: 2,
+        tutor_asignado: "Sin asignar",
+        status_asignacion: "Sin asignar",
+        motivo: null,
+        id_carrera: 2
     }
 ];
 

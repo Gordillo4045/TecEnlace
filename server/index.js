@@ -11,6 +11,7 @@ const app = express();
 // Configuración de CORS
 const allowedOrigins = [
     'https://amazing-scone-68c5ca.netlify.app', // Tu dominio de Netlify
+    'https://tenenlace-server.up.railway.app',
     'http://localhost:5173',
     'http://127.0.0.1:5173'
 ];
