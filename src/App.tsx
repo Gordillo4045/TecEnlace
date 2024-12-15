@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import AcademicDashboard from './components/AcademicDashboard';
+import DemoAcademicDashboard from './components/demo/AcademicDashboard';
 
 // Tipos
 interface ConnectionForm {
@@ -20,7 +21,6 @@ interface ConnectionForm {
 const API_URL = 'http://localhost:4321';
 
 const App = () => {
-  // Estados
   const [connectionForm, setConnectionForm] = useState<ConnectionForm>(() => {
     const savedConnection = localStorage.getItem('connectionData');
     return savedConnection ? JSON.parse(savedConnection) : {
@@ -34,28 +34,26 @@ const App = () => {
     return localStorage.getItem('isConnected') === 'true';
   });
   const [loading, setLoading] = useState(false);
+  const [isDemoMode, setIsDemoMode] = useState(() => {
+    return localStorage.getItem('isDemoMode') === 'true';
+  });
 
   const { toast } = useToast();
 
-  // Manejadores de formularios
   const handleConnectionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setConnectionForm(prev => ({ ...prev, [name]: value }));
   };
 
-  // const handleItemChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const { name, value } = e.target;
-  //   setItemForm(prev => ({ ...prev, [name]: value }));
-  // };
-
-  // Funciones API
   const configureDatabase = async () => {
     setLoading(true);
     try {
       await axios.post(`${API_URL}/api/configure`, connectionForm);
       setIsConnected(true);
+      setIsDemoMode(false);
       localStorage.setItem('isConnected', 'true');
       localStorage.setItem('connectionData', JSON.stringify(connectionForm));
+      localStorage.removeItem('isDemoMode');
       toast({
         title: "Conexión exitosa",
         description: "La conexión a la base de datos se ha establecido correctamente.",
@@ -71,105 +69,25 @@ const App = () => {
     }
   };
 
-  // const fetchItems = async () => {
-  //   setLoading(true);
-  //   try {
-  //     const response = await axios.get<Item[]>(`${API_URL}/api/items`);
-  //     setItems(response.data);
-  //   } catch (error: any) {
-  //     toast({
-  //       variant: "destructive",
-  //       title: "Error",
-  //       description: error.response?.data?.error || 'Error al obtener los elementos',
-  //     });
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  // const addItem = async () => {
-  //   setLoading(true);
-  //   try {
-  //     await axios.post(`${API_URL}/api/items`, itemForm);
-  //     await fetchItems();
-  //     toast({
-  //       title: "Item agregado",
-  //       description: "El item se ha agregado correctamente.",
-  //     });
-  //   } catch (error: any) {
-  //     toast({
-  //       variant: "destructive",
-  //       title: "Error",
-  //       description: error.response?.data?.error || 'Error al agregar el elemento',
-  //     });
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  // // Iniciar edición
-  // const startEdit = (item: Item) => {
-  //   setItemForm({ name: item.name, description: item.description });
-  //   setEditingId(item.id);
-  // };
-
-  // // Cancelar edición
-  // const cancelEdit = () => {
-  //   setItemForm({ name: '', description: '' });
-  //   setEditingId(null);
-  // };
-
-  // // Actualizar item
-  // const updateItem = async () => {
-  //   if (!itemForm.name.trim() || !editingId) return;
-
-  //   setLoading(true);
-  //   setError(null);
-  //   try {
-  //     await axios.put(`${API_URL}/api/items/${editingId}`, itemForm);
-  //     setItemForm({ name: '', description: '' });
-  //     setEditingId(null);
-  //     await fetchItems();
-  //   } catch (error: any) {
-  //     setError(error.response?.data?.error || 'Error al actualizar el elemento');
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  // const deleteItem = async (id: number) => {
-  //   if (!window.confirm('¿Estás seguro de que deseas eliminar este elemento?')) return;
-
-  //   setLoading(true);
-  //   try {
-  //     await axios.delete(`${API_URL}/api/items/${id}`);
-  //     await fetchItems();
-  //     toast({
-  //       title: "Item eliminado",
-  //       description: "El item se ha eliminado correctamente.",
-  //     });
-  //   } catch (error: any) {
-  //     toast({
-  //       variant: "destructive",
-  //       title: "Error",
-  //       description: error.response?.data?.error || 'Error al eliminar el elemento',
-  //     });
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  // Agregar función para desconectarse
   const handleDisconnect = () => {
     setIsConnected(false);
+    setIsDemoMode(false);
     localStorage.removeItem('isConnected');
     localStorage.removeItem('connectionData');
+    localStorage.removeItem('isDemoMode');
     setConnectionForm({
       user: '',
       password: '',
       server: '',
       database: '',
     });
+  };
+
+  const handleDemoMode = () => {
+    setIsConnected(true);
+    setIsDemoMode(true);
+    localStorage.setItem('isConnected', 'true');
+    localStorage.setItem('isDemoMode', 'true');
   };
 
   return (
@@ -198,7 +116,7 @@ const App = () => {
                 </div>
               ))}
             </CardContent>
-            <CardFooter>
+            <CardFooter className="flex flex-col gap-2">
               <Button
                 className="w-full"
                 onClick={configureDatabase}
@@ -210,11 +128,22 @@ const App = () => {
                   'Conectar'
                 )}
               </Button>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={handleDemoMode}
+              >
+                Ver Modo Demo
+              </Button>
             </CardFooter>
           </Card>
         </div>
       ) : (
-        <AcademicDashboard handleDisconnect={handleDisconnect} />
+        isDemoMode ? (
+          <DemoAcademicDashboard handleDisconnect={handleDisconnect} />
+        ) : (
+          <AcademicDashboard handleDisconnect={handleDisconnect} />
+        )
       )}
     </div>
   );
