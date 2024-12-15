@@ -9,6 +9,8 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/componen
 import { Loader2 } from "lucide-react";
 import AcademicDashboard from './components/AcademicDashboard';
 import DemoAcademicDashboard from './components/demo/AcademicDashboard';
+import { initializeDemoData } from './services/demoService';
+import { API_URL } from './config';
 
 // Tipos
 interface ConnectionForm {
@@ -17,8 +19,6 @@ interface ConnectionForm {
   server: string;
   database: string;
 }
-
-const API_URL = 'http://localhost:4321';
 
 const App = () => {
   const [connectionForm, setConnectionForm] = useState<ConnectionForm>(() => {
@@ -84,10 +84,15 @@ const App = () => {
   };
 
   const handleDemoMode = () => {
+    initializeDemoData();
     setIsConnected(true);
     setIsDemoMode(true);
     localStorage.setItem('isConnected', 'true');
     localStorage.setItem('isDemoMode', 'true');
+    toast({
+      title: "Modo Demo Activado",
+      description: "Los datos de demostración han sido cargados correctamente.",
+    });
   };
 
   return (
